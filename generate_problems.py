@@ -14,7 +14,30 @@ def generate_addition_problem(difficulty=5):
             5-6: 보통 (1-100, 2-3개 숫자)
             7-10: 어려움 (50-100, 3개 숫자)
     """
-    if difficulty <= 3:
+    if difficulty == 2:
+        # 2단계: 2~3개 숫자
+        #  - 100단위 숫자: 최대 1개 (없을 수도 있음)
+        #  - 1의 자리 숫자: 최대 1개 (없을 수도 있음)
+        #  - 나머지: 20단위 숫자
+        num_count = random.choice([2, 3])
+        hundreds = [100 * i for i in range(1, 10)]  # 100, 200, ..., 900
+        twenties = [20 * i for i in range(1, 5)]    # 20, 40, 60, 80
+        ones = list(range(1, 10))                   # 1~9
+
+        numbers = []
+
+        # 100단위 숫자 넣기 (0 또는 1개)
+        if random.choice([True, False]):
+            numbers.append(random.choice(hundreds))
+
+        # 1의 자리 숫자 넣기 (0 또는 1개)
+        if len(numbers) < num_count and random.choice([True, False]):
+            numbers.append(random.choice(ones))
+
+        # 나머지는 20단위 숫자로 채우기
+        while len(numbers) < num_count:
+            numbers.append(random.choice(twenties))
+    elif difficulty <= 3:
         # 쉬움 - 일의 자리 합이 10 이하
         num_count = 2
         min_num, max_num = 1, 30
