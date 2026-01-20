@@ -107,16 +107,17 @@ def create_image(difficulty=5):
     draw.text((width // 2 - title_width // 2, 100), title, fill='black', font=title_font)
     
     # 날짜와 이름란
-    date_text = f"날짜: {datetime.now().strftime('%Y년 %m월 %d일')}"
+    # 날짜를 연/월/일 입력란으로 분리 (짧은 빈칸 제공)
     name_text = "이름: ________________"
+    date_text = "날짜: ____년   ____월   ____일"
     draw.text((width // 4, 220), name_text, fill='black', font=header_font)
-    draw.text((width * 3 // 4 - 300, 220), date_text, fill='black', font=header_font)
+    draw.text((width * 3 // 4 - 420, 220), date_text, fill='black', font=header_font)
     
     # 구분선
     draw.line([(200, 320), (width - 200, 320)], fill='black', width=3)
     
-    # 30개의 문제 생성
-    problems = [generate_addition_problem(difficulty) for _ in range(30)]
+    # 36개의 문제 생성
+    problems = [generate_addition_problem(difficulty) for _ in range(36)]
     
     # 두 열로 나누어 배치
     column_width = (width - 400) // 2  # 좌우 여백 200씩
@@ -125,19 +126,19 @@ def create_image(difficulty=5):
     start_y = 420
     problem_spacing = 190  # 문제 간 간격
     
-    for i in range(30):
+    for i in range(36):
         numbers = problems[i]
         
         # 큰 수가 왼쪽에 있도록 (이미 정렬되어 있음)
         equation = " + ".join(map(str, numbers)) + " = __________"
         
-        # 열 선택 (좌측 15개, 우측 15개)
-        if i < 15:
+        # 열 선택 (좌측 18개, 우측 18개)
+        if i < 18:
             x = start_x_left
             y = start_y + (i * problem_spacing)
         else:
             x = start_x_right
-            y = start_y + ((i - 15) * problem_spacing)
+            y = start_y + ((i - 18) * problem_spacing)
         
         # 문제 식 그리기
         draw.text((x, y), equation, fill='black', font=problem_font)
@@ -172,6 +173,6 @@ if __name__ == "__main__":
     
     print(f"✓ 덧셈 문제가 생성되었습니다: {filepath}")
     print(f"✓ 난이도: {difficulty}")
-    print(f"✓ 총 30문제 (2열 × 15문제)")
+    print(f"✓ 총 36문제 (2열 × 18문제)")
     print(f"✓ A4 용지에 출력 가능한 이미지 파일입니다.")
     print(f"✓ 큰 수가 왼쪽에 배치되었습니다.")
