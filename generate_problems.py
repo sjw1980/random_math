@@ -124,7 +124,36 @@ def create_image(difficulty=5):
     start_x_left = 200
     start_x_right = 200 + column_width + 100  # 열 간격 100
     start_y = 420
-    problem_spacing = 190  # 문제 간 간격
+
+    # 한 열에 들어갈 최대 행 수
+    rows_per_column = 18
+    # 하단 여백 (픽셀)
+    bottom_margin = 200
+
+    # 문제 행간을 계산해 18행이 A4 내에 들어가도록 조정
+    # 기본적으로 문제 폰트의 한 줄 높이를 측정
+    bbox = draw.textbbox((0, 0), "0", font=problem_font)
+    line_height = bbox[3] - bbox[1]
+    available_space = height - start_y - bottom_margin
+    # 각 행 사이의 최대 허용 간격
+    max_spacing = max(10, available_space // (rows_per_column - 1))
+
+    # 만약 현재 폰트 크기로는 줄 높이가 너무 커서 겹치거나 잘리는 경우,
+    # 트루타입 폰트를 사용 중이면 폰트 크기를 줄여서 맞춘다.
+    if hasattr(problem_font, 'size'):
+        current_size = problem_font.size
+        while line_height + 8 > max_spacing and current_size > 18:
+            current_size -= 2
+            try:
+                problem_font = ImageFont.truetype("arial.ttf", current_size)
+            except:
+                problem_font = ImageFont.load_default()
+                break
+            bbox = draw.textbbox((0, 0), "0", font=problem_font)
+            line_height = bbox[3] - bbox[1]
+
+    # 최종으로 사용할 문제 간격
+    problem_spacing = max_spacing
     
     for i in range(36):
         numbers = problems[i]
@@ -146,7 +175,7 @@ def create_image(difficulty=5):
     return img
 
 if __name__ == "__main__":
-    # 명령행 인자로 난이도 받기 (기본값: 3)
+    # 명령행 인자로 난이도와 개수 받기 (기본값: 난이도=3, 개수=1)
     if len(sys.argv) > 1:
         try:
             difficulty = int(sys.argv[1])
@@ -158,21 +187,42 @@ if __name__ == "__main__":
             difficulty = 3
     else:
         difficulty = 3
-    
-    print(f"이미지 생성 중... (난이도: {difficulty})")
-    img = create_image(difficulty)
-    
+
+    # 생성할 이미지 개수 (기본값 1)
+    if len(sys.argv) > 2:
+        try:
+            count = int(sys.argv[2])
+            if count < 1:
+                print("⚠ 개수는 1 이상이어야 합니다. 기본값(1)을 사용합니다.")
+                count = 1
+        except ValueError:
+            print("⚠ 올바른 개수 숫자를 입력하세요. 기본값(1)을 사용합니다.")
+            count = 1
+    else:
+        count = 1
+
+    print(f"이미지 생성 중... (난이도: {difficulty}, 개수: {count})")
+
     # output 폴더 생성
     output_dir = "output"
     os.makedirs(output_dir, exist_ok=True)
-    
-    # PNG 파일 저장
-    filename = f"addition_problems_lv{difficulty}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-    filepath = os.path.join(output_dir, filename)
-    img.save(filepath, 'PNG', dpi=(300, 300))
-    
-    print(f"✓ 덧셈 문제가 생성되었습니다: {filepath}")
+
+    saved_files = []
+    for i in range(count):
+        img = create_image(difficulty)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        # 인덱스 붙여서 중복 방지
+        if count == 1:
+            filename = f"addition_problems_lv{difficulty}_{timestamp}.png"
+        else:
+            filename = f"addition_problems_lv{difficulty}_{timestamp}_{i+1}.png"
+
+        filepath = os.path.join(output_dir, filename)
+        img.save(filepath, 'PNG', dpi=(300, 300))
+        saved_files.append(filepath)
+        print(f"✓ 덧셈 문제가 생성되었습니다: {filepath}")
+
     print(f"✓ 난이도: {difficulty}")
-    print(f"✓ 총 36문제 (2열 × 18문제)")
+    print(f"✓ 총 {len(saved_files)}개 이미지 생성 완료 (각 이미지에 36문제 포함)")
     print(f"✓ A4 용지에 출력 가능한 이미지 파일입니다.")
     print(f"✓ 큰 수가 왼쪽에 배치되었습니다.")
