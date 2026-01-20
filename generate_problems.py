@@ -1,4 +1,5 @@
 import random
+import os
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
 
@@ -79,11 +80,16 @@ if __name__ == "__main__":
     print("이미지 생성 중...")
     img = create_image()
     
+    # output 폴더 생성
+    output_dir = "output"
+    os.makedirs(output_dir, exist_ok=True)
+    
     # PNG 파일 저장
     filename = f"addition_problems_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-    img.save(filename, 'PNG', dpi=(300, 300))
+    filepath = os.path.join(output_dir, filename)
+    img.save(filepath, 'PNG', dpi=(300, 300))
     
-    print(f"✓ 덧셈 문제가 생성되었습니다: {filename}")
+    print(f"✓ 덧셈 문제가 생성되었습니다: {filepath}")
     print(f"✓ 총 30문제 (2열 × 15문제)")
     print(f"✓ A4 용지에 출력 가능한 이미지 파일입니다.")
     print(f"✓ 큰 수가 왼쪽에 배치되었습니다.")
