@@ -10,7 +10,8 @@ def generate_addition_problem(difficulty=5):
     Args:
         difficulty: 난이도 (1-10)
             1-3: 쉬움 (1-30, 2개 숫자, 일의 자리 합 <= 10)
-            4-6: 보통 (1-100, 2-3개 숫자)
+            4: 특별 (100-149 1개 + 10단위 또는 1단위 1개)
+            5-6: 보통 (1-100, 2-3개 숫자)
             7-10: 어려움 (50-100, 3개 숫자)
     """
     if difficulty <= 3:
@@ -24,6 +25,19 @@ def generate_addition_problem(difficulty=5):
             ones_sum = sum(num % 10 for num in numbers)
             if ones_sum <= 10:
                 break
+    elif difficulty == 4:
+        # 특별 - 100~149 1개 + 10단위 또는 1단위 1개
+        large_num = random.randint(100, 149)
+        
+        # 10단위 (10, 20, 30, ..., 90) 또는 1단위 (1~9) 선택
+        if random.choice([True, False]):
+            # 10단위
+            small_num = random.randint(1, 9) * 10
+        else:
+            # 1단위
+            small_num = random.randint(1, 9)
+        
+        numbers = [large_num, small_num]
     elif difficulty <= 6:
         # 보통
         num_count = random.choice([2, 3])
