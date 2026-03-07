@@ -13,7 +13,8 @@ def generate_subtraction_problem(difficulty=5):
             2: 쉬움-하 (1~20, 받아내림 없음)
             3: 쉬움-상 (1~30, 받아내림 없음, 일의 자리 a >= b)
             4: 특별 (10 배수 또는 10~19에서 1자리 빼기)
-            5-6: 보통 (1~100, 2개 숫자, 받아내림 가능)
+            5: 특별 (A: 100~190, 1의 자리 0인 A에서 1의 자리 5인 B를 빼며 A-B < 100)
+            6: 보통 (1~100, 2개 숫자, 받아내림 가능)
             7-10: 어려움 (50~100, 3개 숫자 연속 뺄셈)
     
     Returns:
@@ -58,7 +59,21 @@ def generate_subtraction_problem(difficulty=5):
             b = random.randint(a % 10 + 1, 9)  # 받아내림이 발생하도록 b > a의 일의 자리
         numbers = [a, b]
 
-    elif difficulty <= 6:
+    elif difficulty == 5:
+        # 특별 (수정된 조건):
+        # A 조건: 100 이상 190 이하, 1의 자리가 0인 수 (100,110,...,190)
+        # B 조건: A보다 작고 1의 자리가 5인 수이며 정답(A-B)이 100 미만이어야 함
+        tens = list(range(100, 191, 10))  # 100,110,...,190
+        a = random.choice(tens)
+        # B 후보: 5,15,25,...,a-5 중에서 A-B < 100 -> b > a-100
+        b_candidates = [x for x in range(5, a, 10) if x > (a - 100)]
+        if not b_candidates:
+            # 안전 장치: 드물게 후보가 비어있다면 기본 후보로 되돌림
+            b_candidates = list(range(5, a, 10))
+        b = random.choice(b_candidates)
+        numbers = [a, b]
+
+    elif difficulty == 6:
         # 보통: 1~100, 2개 숫자, 받아내림 가능
         a = random.randint(10, 99)
         b = random.randint(1, a - 1)
