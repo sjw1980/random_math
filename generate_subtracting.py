@@ -13,6 +13,7 @@ def generate_subtraction_problem(difficulty=5):
             2: 쉬움-하 (1~20, 받아내림 없음)
             3: 쉬움-상 (1~30, 받아내림 없음, 일의 자리 a >= b)
             4: 특별 (10 배수 또는 10~19에서 1자리 빼기)
+            4.5: 특별 (5에서 파생, A는 100 또는 200 또는 300)
             5: 특별 (A: 100~190, 1의 자리 0인 A에서 1의 자리 5인 B를 빼며 A-B < 100)
             6: 보통 (1~100, 2개 숫자, 받아내림 가능)
             7-10: 어려움 (50~100, 3개 숫자 연속 뺄셈)
@@ -69,6 +70,16 @@ def generate_subtraction_problem(difficulty=5):
         b_candidates = [x for x in range(5, a, 10) if x > (a - 100)]
         if not b_candidates:
             # 안전 장치: 드물게 후보가 비어있다면 기본 후보로 되돌림
+            b_candidates = list(range(5, a, 10))
+        b = random.choice(b_candidates)
+        numbers = [a, b]
+
+    elif difficulty == 4.5:
+        # 4.5: 5의 규칙을 따르되 A는 반드시 100 또는 200 또는 300 중 하나
+        a = random.choice([100, 200, 300])
+        # B 후보: 5,15,25,...,a-5 중에서 A-B < 100 -> b > a-100
+        b_candidates = [x for x in range(5, a, 10) if x > (a - 100)]
+        if not b_candidates:
             b_candidates = list(range(5, a, 10))
         b = random.choice(b_candidates)
         numbers = [a, b]
@@ -189,7 +200,7 @@ if __name__ == "__main__":
     # 명령행 인자로 난이도와 개수 받기 (기본값: 난이도=3, 개수=1)
     if len(sys.argv) > 1:
         try:
-            difficulty = int(sys.argv[1])
+            difficulty = float(sys.argv[1])
             if difficulty < 1 or difficulty > 10:
                 print("⚠ 난이도는 1-10 사이여야 합니다. 기본값(3)을 사용합니다.")
                 difficulty = 3
@@ -223,10 +234,12 @@ if __name__ == "__main__":
         img = create_image(difficulty)
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         # 인덱스 붙여서 중복 방지
+        # 파일명에 소수점이 들어가면 보기 불편하므로 '_'로 대체
+        diff_str = str(difficulty).replace('.', '_')
         if count == 1:
-            filename = f"subtraction_problems_lv{difficulty}_{timestamp}.png"
+            filename = f"subtraction_problems_lv{diff_str}_{timestamp}.png"
         else:
-            filename = f"subtraction_problems_lv{difficulty}_{timestamp}_{i+1}.png"
+            filename = f"subtraction_problems_lv{diff_str}_{timestamp}_{i+1}.png"
 
         filepath = os.path.join(output_dir, filename)
         img.save(filepath, 'PNG', dpi=(300, 300))
